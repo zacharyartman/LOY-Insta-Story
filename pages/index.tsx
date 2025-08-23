@@ -485,7 +485,7 @@ export default function ScheduleScraper() {
         const teacherElement = item.querySelector(".momence-session-teacher");
         const dateElement = item.querySelector(".momence-session-starts_at");
 
-        let title = titleElement?.textContent?.trim();
+        const title = titleElement?.textContent?.trim();
         let time = timeElement?.textContent?.trim();
         let teacher = teacherElement?.textContent?.trim();
         const date = dateElement?.textContent?.trim();
