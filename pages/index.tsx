@@ -14,7 +14,9 @@ export default function ScheduleScraper() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isComponentLoaded, setIsComponentLoaded] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string>("/default-schedule-pic.webp");
+  const [selectedImage, setSelectedImage] = useState<string>(
+    "/default-schedule-pic.webp"
+  );
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [showPromoGraphic, setShowPromoGraphic] = useState(false);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
@@ -47,7 +49,7 @@ export default function ScheduleScraper() {
   useEffect(() => {
     if (scheduleData.length > 0) {
       const dates = Array.from(
-        new Set(scheduleData.map((item) => item.date)),
+        new Set(scheduleData.map((item) => item.date))
       ).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
       setAvailableDates(dates);
       if (dates.length > 0 && !selectedDate) {
@@ -83,7 +85,7 @@ export default function ScheduleScraper() {
       return;
     }
     setShowPromoGraphic(true);
-    
+
     // Render the canvas after a short delay to ensure the canvas is in the DOM
     setTimeout(() => {
       renderPromoGraphic();
@@ -95,17 +97,17 @@ export default function ScheduleScraper() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    
+
     // Use the current selectedDate state
     if (!selectedDate) return;
-  
+
     const bg = new Image();
     const logo = new Image();
     const scheduleBg = new Image();
-    bg.src = selectedImage
+    bg.src = selectedImage;
     logo.src = "/las-olas-yoga-white.png";
     scheduleBg.src = "/schedule-background.jpeg";
-  
+
     const onceBothLoaded = () => {
       if (!bg.complete || !logo.complete || !scheduleBg.complete) return;
       // base colors
@@ -113,60 +115,86 @@ export default function ScheduleScraper() {
       const dark = "#69503c";
       const muted = "#a58367";
       const white = "#FFFFFF";
-  
+
       // helpers
-      const roundedRect = (x:number, y:number, w:number, h:number, r:number) => {
+      const roundedRect = (
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        r: number
+      ) => {
         ctx.beginPath();
         ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y,     x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x,     y + h, r);
-        ctx.arcTo(x,     y + h, x,     y,     r);
-        ctx.arcTo(x,     y,     x + w, y,     r);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
         ctx.closePath();
       };
-  
+
       // canvas bg
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       // photo (top ~50%)
-      const photoH = Math.round(canvas.height * 0.50);
-      
+      const photoH = Math.round(canvas.height * 0.5);
+
       // Draw schedule background for bottom half
       const scheduleBgH = canvas.height - photoH;
       const scheduleArImg = scheduleBg.width / scheduleBg.height;
       const scheduleArCan = canvas.width / scheduleBgH;
-      
+
       // compute source crop rect to "cover" the bottom area
-      let scheduleSx = 0, scheduleSy = 0, scheduleSw = scheduleBg.width, scheduleSh = scheduleBg.height;
-      if (scheduleArImg > scheduleArCan) {          // crop sides
+      let scheduleSx = 0,
+        scheduleSy = 0,
+        scheduleSw = scheduleBg.width,
+        scheduleSh = scheduleBg.height;
+      if (scheduleArImg > scheduleArCan) {
+        // crop sides
         scheduleSh = scheduleBg.height;
         scheduleSw = scheduleSh * scheduleArCan;
         scheduleSx = (scheduleBg.width - scheduleSw) / 2;
-      } else {                      // crop top/bottom
+      } else {
+        // crop top/bottom
         scheduleSw = scheduleBg.width;
         scheduleSh = scheduleSw / scheduleArCan;
         scheduleSy = (scheduleBg.height - scheduleSh) / 2;
       }
-      
+
       // draw schedule background into the bottom area
-      ctx.drawImage(scheduleBg, scheduleSx, scheduleSy, scheduleSw, scheduleSh, 0, photoH, canvas.width, scheduleBgH);
-      const arImg  = bg.width / bg.height;
-      const arCan  = canvas.width / photoH;
-      
+      ctx.drawImage(
+        scheduleBg,
+        scheduleSx,
+        scheduleSy,
+        scheduleSw,
+        scheduleSh,
+        0,
+        photoH,
+        canvas.width,
+        scheduleBgH
+      );
+      const arImg = bg.width / bg.height;
+      const arCan = canvas.width / photoH;
+
       // compute source crop rect to "cover" the target area
-      let sx = 0, sy = 0, sw = bg.width, sh = bg.height;
-      if (arImg > arCan) {          // crop sides
+      let sx = 0,
+        sy = 0,
+        sw = bg.width,
+        sh = bg.height;
+      if (arImg > arCan) {
+        // crop sides
         sh = bg.height;
         sw = sh * arCan;
         sx = (bg.width - sw) / 2;
-      } else {                      // crop top/bottom
+      } else {
+        // crop top/bottom
         sw = bg.width;
         sh = sw / arCan;
         sy = (bg.height - sh) / 2;
       }
-      
+
       // draw exactly into the 55% area
-      ctx.drawImage(bg, sx, sy, sw, sh, 0, 0, canvas.width, photoH);  
+      ctx.drawImage(bg, sx, sy, sw, sh, 0, 0, canvas.width, photoH);
       // soft edge at seam
       const g = ctx.createLinearGradient(0, photoH - 48, 0, photoH + 48);
       g.addColorStop(0, "rgba(0,0,0,0.15)");
@@ -174,29 +202,33 @@ export default function ScheduleScraper() {
       g.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, canvas.width, photoH);
-  
+
       // “torn” paper shadow line
       ctx.fillStyle = "rgba(0,0,0,0.18)";
       ctx.fillRect(0, photoH - 12, canvas.width, 12);
-  
+
       // logo (centered at seam)
-      const logoTargetW = canvas.width * 0.3
+      const logoTargetW = canvas.width * 0.3;
       const logoAr = logo.width / logo.height || 3.5;
       const logoW = logoTargetW;
       const logoH = logoW / logoAr;
       const logoX = (canvas.width - logoW) / 2;
       const logoY = photoH - Math.round(logoH * 0.5);
       ctx.drawImage(logo, logoX, logoY, logoW, logoH);
-  
+
       // headline: <DAY> SCHEDULE
-      const day = new Date(selectedDate).toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+      const day = new Date(selectedDate)
+        .toLocaleDateString(undefined, { weekday: "long" })
+        .toUpperCase();
       ctx.fillStyle = white;
-      ctx.font = `700 ${Math.round(canvas.width * 0.07)}px Inter, Arial, sans-serif`;
+      ctx.font = `700 ${Math.round(
+        canvas.width * 0.07
+      )}px Inter, Arial, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(`${day} SCHEDULE`, canvas.width / 2, photoH + logoH - 140);
-  
-      const fivePills = filteredScheduleItems.length === 5
+
+      const fivePills = filteredScheduleItems.length === 5;
 
       // pills
       const firstY = photoH + logoH;
@@ -204,44 +236,61 @@ export default function ScheduleScraper() {
       const pillRadius = pillHeight / 2;
       const padX = Math.round(canvas.width * 0.06);
       const pillW = canvas.width - padX * 2;
-  
-      const drawItem = (item:ScheduleItem, row:number) => {
+
+      const drawItem = (item: ScheduleItem, row: number) => {
         const y = firstY + row * (pillHeight + 44);
-      
+
         // pill bg
         ctx.fillStyle = pill;
         roundedRect(padX, y, pillW, pillHeight, pillRadius);
         ctx.fill();
-      
+
         // vertical center
         const midY = y + pillHeight / 2;
-      
+
         // time (left)
         ctx.fillStyle = dark;
-        ctx.font = `700 ${Math.round(pillHeight * 0.21)}px Inter, Arial, sans-serif`;
+        ctx.font = `700 ${Math.round(
+          pillHeight * 0.21
+        )}px Inter, Arial, sans-serif`;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(item.time.replace(/ AM| PM/g, m => m.trim()), padX + 105, midY);
-      
+        ctx.fillText(
+          item.time.replace(/ AM| PM/g, (m) => m.trim()),
+          padX + 105,
+          midY
+        );
+
         // title (center top)
         ctx.textAlign = "left";
         ctx.fillStyle = dark;
-        ctx.font = `700 ${Math.round(pillHeight * (item.title.length > 19 ? 0.15 : 0.30))}px Inter, Arial, sans-serif`;
-        ctx.fillText((item.title || "").toUpperCase(), (canvas.width / 2) - 200, midY - 40);
-      
+        ctx.font = `700 ${Math.round(
+          pillHeight * (item.title.length > 19 ? 0.15 : 0.3)
+        )}px Inter, Arial, sans-serif`;
+        ctx.fillText(
+          (item.title || "").toUpperCase(),
+          canvas.width / 2 - 200,
+          midY - 40
+        );
+
         // teacher (center bottom)
         ctx.fillStyle = muted;
-        ctx.font = `${Math.round(pillHeight * 0.21)}px Inter, Arial, sans-serif`;
+        ctx.font = `${Math.round(
+          pillHeight * 0.21
+        )}px Inter, Arial, sans-serif`;
         ctx.fillText(
-          (item.teacher ? `WITH ${item.teacher.replace("  ", " ")}` : "").toUpperCase(),
-          (canvas.width / 2) - 200,
+          (item.teacher
+            ? `WITH ${item.teacher.replace("  ", " ")}`
+            : ""
+          ).toUpperCase(),
+          canvas.width / 2 - 200,
           midY + (item.title.length > 19 ? 40 : 53)
         );
       };
 
-      filteredScheduleItems.forEach((it, i)=>drawItem(it, i));
+      filteredScheduleItems.forEach((it, i) => drawItem(it, i));
     };
-  
+
     if (bg.complete && logo.complete && scheduleBg.complete) onceBothLoaded();
     bg.onload = onceBothLoaded;
     logo.onload = onceBothLoaded;
@@ -253,14 +302,17 @@ export default function ScheduleScraper() {
     if (!canvas) return;
 
     // Check if we're on a mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
     if (isMobile) {
       // For mobile, display the image directly so users can long-press to save
       const img = canvas.toDataURL("image/png");
-      
+
       // Create a modal or overlay to show the image
-      const modal = document.createElement('div');
+      const modal = document.createElement("div");
       modal.style.cssText = `
         position: fixed;
         top: 0;
@@ -274,8 +326,8 @@ export default function ScheduleScraper() {
         z-index: 999999;
         padding: 20px;
       `;
-      
-      const imgElement = document.createElement('img');
+
+      const imgElement = document.createElement("img");
       imgElement.src = img;
       imgElement.style.cssText = `
         max-width: 100%;
@@ -283,10 +335,10 @@ export default function ScheduleScraper() {
         object-fit: contain;
         border-radius: 8px;
       `;
-      
+
       // Add close button
-      const closeButton = document.createElement('button');
-      closeButton.textContent = '×';
+      const closeButton = document.createElement("button");
+      closeButton.textContent = "×";
       closeButton.style.cssText = `
         position: absolute;
         top: 20px;
@@ -302,11 +354,11 @@ export default function ScheduleScraper() {
         align-items: center;
         justify-content: center;
       `;
-      
+
       closeButton.onclick = () => {
         document.body.removeChild(modal);
       };
-      
+
       modal.appendChild(imgElement);
       modal.appendChild(closeButton);
       modal.onclick = (e) => {
@@ -314,12 +366,14 @@ export default function ScheduleScraper() {
           document.body.removeChild(modal);
         }
       };
-      
+
       document.body.appendChild(modal);
     } else {
       // Desktop: use traditional download
       const link = document.createElement("a");
-      link.download = `las-olas-yoga-${selectedDate.replace(/\s+/g, "-").toLowerCase()}.png`;
+      link.download = `las-olas-yoga-${selectedDate
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.png`;
       link.href = canvas.toDataURL();
       link.click();
     }
@@ -341,7 +395,7 @@ export default function ScheduleScraper() {
         console.log("Schedule container has content:", hasContent);
         console.log(
           "Schedule container children:",
-          scheduleContainer.children.length,
+          scheduleContainer.children.length
         );
         console.log("Schedule container text length:", textContent.length);
 
@@ -353,7 +407,7 @@ export default function ScheduleScraper() {
         }
       } else {
         setError(
-          "Schedule container not found. Please make sure the schedule component has loaded.",
+          "Schedule container not found. Please make sure the schedule component has loaded."
         );
         setIsLoading(false);
       }
@@ -374,16 +428,16 @@ export default function ScheduleScraper() {
 
       console.log(
         "Extracting schedule data from container:",
-        scheduleContainer,
+        scheduleContainer
       );
       console.log(
         "Container HTML:",
-        scheduleContainer.innerHTML.substring(0, 1000) + "...",
+        scheduleContainer.innerHTML.substring(0, 1000) + "..."
       );
 
       // Look for schedule items with Momence-specific selectors
       const scheduleItems = scheduleContainer.querySelectorAll(
-        '.momence-host_schedule-session_list-item, [class*="momence"], [class*="session"]',
+        '.momence-host_schedule-session_list-item, [class*="momence"], [class*="session"]'
       );
       console.log("Found schedule items:", scheduleItems.length);
 
@@ -392,20 +446,20 @@ export default function ScheduleScraper() {
         scheduleContainer.querySelectorAll('[class*="momence"]');
       console.log(
         "All elements with momence classes:",
-        allMomenceElements.length,
+        allMomenceElements.length
       );
       allMomenceElements.forEach((el, index) => {
         console.log(
           `Momence element ${index}:`,
           el.className,
-          el.textContent?.substring(0, 100),
+          el.textContent?.substring(0, 100)
         );
       });
 
       if (scheduleItems.length === 0) {
         // Try broader selectors
         const alternativeItems = scheduleContainer.querySelectorAll(
-          '*[class*="session"], *[class*="schedule"], *[class*="class"], div, li',
+          '*[class*="session"], *[class*="schedule"], *[class*="class"], div, li'
         );
         console.log("Found alternative items:", alternativeItems.length);
 
@@ -415,7 +469,7 @@ export default function ScheduleScraper() {
           if (containerText && containerText.length > 10) {
             console.log(
               "Extracting from container text:",
-              containerText.substring(0, 200) + "...",
+              containerText.substring(0, 200) + "..."
             );
             processContainerText(containerText);
           } else {
@@ -431,7 +485,9 @@ export default function ScheduleScraper() {
       }
     } catch (err) {
       setError(
-        `Error extracting schedule data: ${err instanceof Error ? err.message : "Unknown error"}`,
+        `Error extracting schedule data: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
       );
       setIsLoading(false);
     }
@@ -479,7 +535,7 @@ export default function ScheduleScraper() {
 
         // Try to extract structured data if available
         const titleElement = item.querySelector(
-          ".momence-host_schedule-session_list-item-title",
+          ".momence-host_schedule-session_list-item-title"
         );
         const timeElement = item.querySelector(".momence-session-duration");
         const teacherElement = item.querySelector(".momence-session-teacher");
@@ -543,7 +599,7 @@ export default function ScheduleScraper() {
         self.findIndex(
           (other) =>
             `${other.title}-${other.time}-${other.teacher}-${other.date}` ===
-            key,
+            key
         )
       );
     });
@@ -552,21 +608,21 @@ export default function ScheduleScraper() {
     console.log("Unique items:", uniqueData.length);
     console.log(
       "Duplicates removed:",
-      extractedData.length - uniqueData.length,
+      extractedData.length - uniqueData.length
     );
 
     setScheduleData(uniqueData);
     setIsLoading(false);
-    
+
     // Automatically generate insta story when data is loaded
     if (uniqueData.length > 0) {
       // Set the first available date as selected
       const firstDate = uniqueData[0].date;
       setSelectedDate(firstDate);
-      
+
       // Show the insta story section
       setShowPromoGraphic(true);
-      
+
       // Render the insta story after a short delay to ensure state updates
       setTimeout(() => {
         renderPromoGraphic();
@@ -596,7 +652,7 @@ export default function ScheduleScraper() {
   };
 
   const filteredScheduleItems = scheduleData.filter(
-    (item) => item.date === selectedDate,
+    (item) => item.date === selectedDate
   );
 
   return (
@@ -617,10 +673,14 @@ export default function ScheduleScraper() {
             <button
               onClick={startScraping}
               disabled={isLoading || !isComponentLoaded}
-                              className="mt-3 rounded px-4 py-2 text-white transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-400"
-                style={{ backgroundColor: '#a58367' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b6f55'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#a58367'}
+              className="mt-3 rounded px-4 py-2 text-white transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-400"
+              style={{ backgroundColor: "#a58367" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#8b6f55")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "#a58367")
+              }
             >
               {isLoading ? "Getting data..." : "Generate Image"}
             </button>
@@ -639,147 +699,130 @@ export default function ScheduleScraper() {
             </div>
           )}
 
-          {/* {!isLoading && !error && scheduleData.length > 0 && (
-            <>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Extracted Schedule Data</h2>
-                <button
-                  onClick={copyToClipboard}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-                >
-                  Copy to Clipboard
-                </button>
-              </div>
+          {!isLoading && !error && scheduleData.length > 0 && (
+            <div>
+              <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                {/* Image Upload */}
+                <div>
+                  <h3 className="mb-3 font-semibold">
+                    Upload Custom Background Image
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="rounded px-4 py-2 text-white transition-colors cursor-pointer"
+                    style={{ backgroundColor: "#a58367" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#8b6f55")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#a58367")
+                    }
+                  >
+                    Choose Image
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </div>
 
-              <div className="space-y-4">
-                <div className="bg-gray-100 p-4 rounded">
-                  <h3 className="font-semibold mb-2">Plain Text Array:</h3>
-                  <pre className="text-sm overflow-x-auto">
-                    {JSON.stringify(scheduleData, null, 2)}
-                  </pre>
+                {/* Date Dropdown */}
+                <div>
+                  <h3 className="mb-3 font-semibold">Select Date</h3>
+                  <select
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="w-full rounded border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select a date...</option>
+                    {availableDates.map((date) => (
+                      <option key={date} value={date}>
+                        {date}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedDate && (
+                    <div className="mt-3 rounded bg-gray-50 p-3">
+                      <h4 className="mb-2 font-semibold">
+                        Classes for {selectedDate}:
+                      </h4>
+                      {filteredScheduleItems.length > 0 ? (
+                        <ul className="space-y-1 text-sm">
+                          {filteredScheduleItems.map((item, index) => (
+                            <li key={index} className="flex justify-between">
+                              <span>{item.time}</span>
+                              <span>
+                                {item.title} with {item.teacher}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No classes found for this date
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            </>
-          )} */}
-        </div>
 
-        {/* Insta story Generator */}
-        {!isLoading && !error && scheduleData.length > 0 && (
-          <div className="mb-8 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-6 text-xl font-semibold">
-              Insta story Generator
-            </h2>
+              {/* Auto-generation notice */}
+              <div className="rounded-lg bg-green-50 p-4 text-center">
+                <p className="text-green-800 font-medium">
+                  ✅ Insta story will be generated automatically when schedule
+                  data is loaded and updates when you change the date
+                </p>
+              </div>
+            </div>
+          )}
 
-            <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Image Upload */}
-              <div>
-                <h3 className="mb-3 font-semibold">Upload Custom Background Image</h3>
+          {/* Insta story Display */}
+          {showPromoGraphic && selectedDate && (
+            <div className="mb-8 rounded-lg bg-white p-6 shadow-lg">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Generated Insta story</h2>
                 <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={downloadPromoGraphic}
                   className="rounded px-4 py-2 text-white transition-colors cursor-pointer"
-                  style={{ backgroundColor: '#a58367' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b6f55'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#a58367'}
+                  style={{ backgroundColor: "#a58367" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#8b6f55")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#a58367")
+                  }
                 >
-                  Choose Image
+                  Download Image
                 </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
+              </div>
+
+              <div className="flex justify-left" style={{ overflow: "hidden" }}>
+                <canvas
+                  id="promoCanvas"
+                  width="2160"
+                  height="3840"
+                  className="rounded-2xl shadow-2xl"
+                  style={{
+                    imageRendering: "crisp-edges",
+                    transform: "scale(0.15)",
+                    transformOrigin: "left top",
+                  }}
                 />
               </div>
-
-              {/* Date Dropdown */}
-              <div>
-                <h3 className="mb-3 font-semibold">Select Date</h3>
-                <select
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full rounded border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select a date...</option>
-                  {availableDates.map((date) => (
-                    <option key={date} value={date}>
-                      {date}
-                    </option>
-                  ))}
-                </select>
-                {selectedDate && (
-                  <div className="mt-3 rounded bg-gray-50 p-3">
-                    <h4 className="mb-2 font-semibold">
-                      Classes for {selectedDate}:
-                    </h4>
-                    {filteredScheduleItems.length > 0 ? (
-                      <ul className="space-y-1 text-sm">
-                        {filteredScheduleItems.map((item, index) => (
-                          <li key={index} className="flex justify-between">
-                            <span>{item.time}</span>
-                            <span>
-                              {item.title} with {item.teacher}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        No classes found for this date
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
             </div>
-
-            {/* Auto-generation notice */}
-            <div className="rounded-lg bg-green-50 p-4 text-center">
-              <p className="text-green-800 font-medium">
-                ✅ Insta story will be generated automatically when schedule data is loaded and updates when you change the date
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Insta story Display */}
-        {showPromoGraphic && selectedDate && (
-          <div className="mb-8 rounded-lg bg-white p-6 shadow-lg">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Generated Insta story</h2>
-              <button
-                onClick={downloadPromoGraphic}
-                className="rounded px-4 py-2 text-white transition-colors cursor-pointer"
-                style={{ backgroundColor: '#a58367' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b6f55'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#a58367'}
-              >
-                Download Image
-              </button>
-            </div>
-
-            <div className="flex justify-left" style={{ overflow: "hidden"}}>
-              <canvas
-                id="promoCanvas"
-                width="2160"
-                height="3840"
-                className="rounded-2xl shadow-2xl"
-                style={{ 
-                  imageRendering: 'crisp-edges',
-                  transform: 'scale(0.15)',
-                  transformOrigin: 'left top'
-                }}
-              />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* MomenceSchedule component */}
         <div className="mb-8">
           <h3 className="mb-4 text-lg font-semibold">Schedule Component:</h3>
           <div className="rounded border border-gray-300 bg-gray-50 p-4">
-            <MomenceSchedule/>
+            <MomenceSchedule />
           </div>
         </div>
       </div>
