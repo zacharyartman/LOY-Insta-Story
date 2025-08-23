@@ -659,7 +659,7 @@ export default function ScheduleScraper() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <h1 className="mb-8 text-center text-3xl font-bold">
-          Insta Story Generatorer
+          Insta Story Generator
         </h1>
 
         {/* Component Status, Controls, and Results */}
@@ -783,7 +783,7 @@ export default function ScheduleScraper() {
 
           {/* Insta story Display */}
           {showPromoGraphic && selectedDate && (
-            <div className="mb-8 rounded-lg bg-white p-6 shadow-lg">
+            <div>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Generated Insta story</h2>
                 <button
