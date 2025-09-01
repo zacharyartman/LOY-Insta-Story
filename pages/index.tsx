@@ -426,63 +426,11 @@ export default function ScheduleScraper() {
         return;
       }
 
-      console.log(
-        "Extracting schedule data from container:",
-        scheduleContainer
-      );
-      console.log(
-        "Container HTML:",
-        scheduleContainer.innerHTML.substring(0, 1000) + "..."
-      );
-
-      // Look for schedule items with Momence-specific selectors
       const scheduleItems = scheduleContainer.querySelectorAll(
         ".momence-host_schedule-session_list-item"
       );
-      console.log("Found schedule items:", scheduleItems.length);
 
-      // Log all elements with momence classes for debugging
-      const allMomenceElements =
-        scheduleContainer.querySelectorAll('[class*="momence"]');
-      console.log(
-        "All elements with momence classes:",
-        allMomenceElements.length
-      );
-      allMomenceElements.forEach((el, index) => {
-        console.log(
-          `Momence element ${index}:`,
-          el.className,
-          el.textContent?.substring(0, 100)
-        );
-      });
-
-      if (scheduleItems.length === 0) {
-        // Try broader selectors
-        const alternativeItems = scheduleContainer.querySelectorAll(
-          '*[class*="session"], *[class*="schedule"], *[class*="class"], div, li'
-        );
-        console.log("Found alternative items:", alternativeItems.length);
-
-        if (alternativeItems.length === 0) {
-          // Last resort: try to extract from any content
-          const containerText = scheduleContainer.textContent?.trim();
-          if (containerText && containerText.length > 10) {
-            console.log(
-              "Extracting from container text:",
-              containerText.substring(0, 200) + "..."
-            );
-            processContainerText(containerText);
-          } else {
-            setError("No schedule items found. Reload the page.");
-            setIsLoading(false);
-            return;
-          }
-        } else {
-          processScheduleItems(alternativeItems);
-        }
-      } else {
-        processScheduleItems(scheduleItems);
-      }
+      processScheduleItems(scheduleItems);
     } catch (err) {
       setError(
         `Error extracting schedule data: ${
@@ -530,9 +478,6 @@ export default function ScheduleScraper() {
         const textContent = item.textContent?.trim();
         if (!textContent) return;
 
-        console.log("Processing item:", item);
-        console.log("Item text content:", textContent);
-
         // Try to extract structured data if available
         const titleElement = item.querySelector(
           ".momence-host_schedule-session_list-item-title"
@@ -559,12 +504,6 @@ export default function ScheduleScraper() {
 
         // Skip items that don't have all required fields
         if (!time || !teacher || !date) {
-          console.log("Skipping item - missing required fields:", {
-            title,
-            time,
-            teacher,
-            date,
-          });
           return;
         }
 
@@ -573,8 +512,6 @@ export default function ScheduleScraper() {
 
         // Clean up time format - remove duration (e.g., "2:00 PM - 3:15 PM75 min" -> "2:00 PM - 3:15 PM")
         time = time.replace(/\d+\s*min/gi, "").trim();
-
-        console.log("Extracted data:", { title, time, teacher, date });
 
         extractedData.push({
           title,
@@ -609,13 +546,6 @@ export default function ScheduleScraper() {
         )
       );
     });
-
-    console.log("Original items:", extractedData.length);
-    console.log("Unique items:", uniqueData.length);
-    console.log(
-      "Duplicates removed:",
-      extractedData.length - uniqueData.length
-    );
 
     setScheduleData(uniqueData);
     setIsLoading(false);
