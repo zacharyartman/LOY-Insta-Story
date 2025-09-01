@@ -437,7 +437,7 @@ export default function ScheduleScraper() {
 
       // Look for schedule items with Momence-specific selectors
       const scheduleItems = scheduleContainer.querySelectorAll(
-        '.momence-host_schedule-session_list-item, [class*="momence"], [class*="session"]'
+        ".momence-host_schedule-session_list-item"
       );
       console.log("Found schedule items:", scheduleItems.length);
 
@@ -540,16 +540,22 @@ export default function ScheduleScraper() {
         const timeElement = item.querySelector(".momence-session-duration");
         const teacherElement = item.querySelector(".momence-session-teacher");
         const dateElement = item.querySelector(".momence-session-starts_at");
+        const bookElement = item.querySelector(
+          ".momence-host_schedule-session-list-item-wrapper"
+        );
 
         const title = titleElement?.textContent?.trim();
         let time = timeElement?.textContent?.trim();
         let teacher = teacherElement?.textContent?.trim();
         const date = dateElement?.textContent?.trim();
+        const bookText = bookElement?.textContent?.trim();
 
         // Skip items with no title or "Unknown Class" title
         if (!title || title === "Unknown Class") {
           return;
         }
+
+        if (bookText === "Cancelled") return;
 
         // Skip items that don't have all required fields
         if (!time || !teacher || !date) {
