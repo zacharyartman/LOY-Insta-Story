@@ -719,7 +719,7 @@ export default function ScheduleScraper() {
 
           {/* Insta story Display */}
           {showPromoGraphic && selectedDate && (
-            <div>
+            <div style={{ maxHeight: "650px"}}>
               <div className="my-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Generated Insta story</h2>
                 <button
