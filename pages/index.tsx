@@ -79,19 +79,6 @@ export default function ScheduleScraper() {
     }
   };
 
-  const generatePromoGraphic = () => {
-    if (!selectedDate) {
-      alert("Please select a date");
-      return;
-    }
-    setShowPromoGraphic(true);
-
-    // Render the canvas after a short delay to ensure the canvas is in the DOM
-    setTimeout(() => {
-      renderPromoGraphic();
-    }, 100);
-  };
-
   const renderPromoGraphic = () => {
     const canvas = document.getElementById("promoCanvas") as HTMLCanvasElement;
     if (!canvas) return;
@@ -133,11 +120,16 @@ export default function ScheduleScraper() {
         ctx.closePath();
       };
 
+      const pillCount = filteredScheduleItems.length;
+      const sixPills = pillCount === 6;
+      const fivePills = pillCount === 5;
+      const layoutShift = sixPills ? -40 : 0;
+
       // canvas bg
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // photo (top ~50%)
-      const photoH = Math.round(canvas.height * 0.5);
+      const photoH = Math.round(canvas.height * (sixPills ? 0.43 : 0.5));
 
       // Draw schedule background for bottom half
       const scheduleBgH = canvas.height - photoH;
@@ -213,7 +205,7 @@ export default function ScheduleScraper() {
       const logoW = logoTargetW;
       const logoH = logoW / logoAr;
       const logoX = (canvas.width - logoW) / 2;
-      const logoY = photoH - Math.round(logoH * 0.5);
+      const logoY = photoH - Math.round(logoH * 0.5) + layoutShift;
       ctx.drawImage(logo, logoX, logoY, logoW, logoH);
 
       // headline: <DAY> SCHEDULE
@@ -226,13 +218,11 @@ export default function ScheduleScraper() {
       )}px Inter, Arial, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(`${day} SCHEDULE`, canvas.width / 2, photoH + logoH - 140);
-
-      const fivePills = filteredScheduleItems.length === 5;
+      ctx.fillText(`${day} SCHEDULE`, canvas.width / 2, photoH + logoH - 140 + layoutShift);
 
       // pills
-      const firstY = photoH + logoH;
-      const pillHeight = Math.round(canvas.height * (fivePills ? 0.06 : 0.08));
+      const firstY = photoH + logoH + layoutShift;
+      const pillHeight = Math.round(canvas.height * (fivePills || sixPills ? 0.06 : 0.08));
       const pillRadius = pillHeight / 2;
       const padX = Math.round(canvas.width * 0.06);
       const pillW = canvas.width - padX * 2;
