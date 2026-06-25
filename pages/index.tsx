@@ -254,17 +254,25 @@ export default function ScheduleScraper() {
           midY
         );
 
-        // title (center top)
+        // title (center top) — start at full size and shrink only as needed
+        // to fit the available pill width, instead of halving on a char count
+        const titleText = (item.title || "").toUpperCase();
+        const titleX = canvas.width / 2 - 200;
+        const titleMaxW = padX + pillW - titleX - 40;
+        const maxTitleFont = pillHeight * 0.3;
+        const minTitleFont = pillHeight * 0.18;
+        let titleFont = maxTitleFont;
+        ctx.font = `700 ${Math.round(titleFont)}px Inter, Arial, sans-serif`;
+        while (
+          ctx.measureText(titleText).width > titleMaxW &&
+          titleFont > minTitleFont
+        ) {
+          titleFont -= 1;
+          ctx.font = `700 ${Math.round(titleFont)}px Inter, Arial, sans-serif`;
+        }
         ctx.textAlign = "left";
         ctx.fillStyle = dark;
-        ctx.font = `700 ${Math.round(
-          pillHeight * (item.title.length > 19 ? 0.15 : 0.3)
-        )}px Inter, Arial, sans-serif`;
-        ctx.fillText(
-          (item.title || "").toUpperCase(),
-          canvas.width / 2 - 200,
-          midY - 40
-        );
+        ctx.fillText(titleText, titleX, midY - 40);
 
         // teacher (center bottom)
         ctx.fillStyle = muted;
@@ -276,8 +284,8 @@ export default function ScheduleScraper() {
             ? `WITH ${item.teacher.replace("  ", " ")}`
             : ""
           ).toUpperCase(),
-          canvas.width / 2 - 200,
-          midY + (item.title.length > 19 ? 40 : 53)
+          titleX,
+          midY + 53
         );
       };
 
